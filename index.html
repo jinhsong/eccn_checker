@@ -564,7 +564,7 @@
   }
 
   .chat-area {
-    height: 380px;
+    height: 520px;
     overflow-y: auto;
     padding: 20px;
     display: flex;
@@ -575,7 +575,9 @@
   .chat-message {
     display: flex;
     gap: 12px;
+    align-items: flex-start;
     animation: fadeIn 0.3s ease;
+    width: 100%;
   }
 
   .chat-message.user { flex-direction: row-reverse; }
@@ -591,17 +593,27 @@
     font-size: 11px;
     font-weight: 600;
     flex-shrink: 0;
+    align-self: flex-start;
   }
 
   .msg-avatar.ai { background: rgba(0,212,170,0.15); color: var(--accent); border: 1px solid rgba(0,212,170,0.2); }
   .msg-avatar.user { background: rgba(0,102,255,0.15); color: var(--accent2); border: 1px solid rgba(0,102,255,0.2); }
 
   .msg-bubble {
-    max-width: 80%;
+    flex: 1;
+    min-width: 0;
     padding: 12px 16px;
     border-radius: 10px;
     font-size: 13px;
-    line-height: 1.6;
+    line-height: 1.75;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+  }
+
+  .chat-message.user .msg-bubble {
+    flex: 0 1 auto;
+    max-width: 70%;
   }
 
   .chat-message.ai .msg-bubble {
@@ -1657,7 +1669,13 @@ function appendMessage(role, text) {
   const chatArea = document.getElementById('chatArea');
   const el = document.createElement('div');
   el.className = `chat-message ${role}`;
-  const formatted = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  const formatted = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/`([^`]+)`/g, '<code style="font-family:var(--mono);background:rgba(0,0,0,0.3);padding:1px 5px;border-radius:3px;font-size:11px">$1</code>');
   el.innerHTML = `<div class="msg-avatar ${role}">${role==='ai'?'AI':'YOU'}</div><div class="msg-bubble">${formatted}</div>`;
   chatArea.appendChild(el);
   chatArea.scrollTop = chatArea.scrollHeight;
